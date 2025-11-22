@@ -22,6 +22,8 @@ import { healthcheck } from "./pages/healthcheck";
 export const uploadsDir = "./data/uploads/";
 export const outputDir = "./data/output/";
 
+import { api } from "./api";
+
 // Fix for Elysia issue with Bun, (see https://github.com/oven-sh/bun/issues/12161)
 process.getBuiltinModule = require;
 
@@ -50,6 +52,7 @@ const app = new Elysia({
   .use(listConverters)
   .use(chooseConverter)
   .use(healthcheck)
+  .use(api)
   .onError(({ error }) => {
     console.error(error);
   });
@@ -65,9 +68,10 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-app.listen(3000);
+const port = Number(process.env.PORT) || 3000;
+app.listen(port);
 
-console.log(`🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}${WEBROOT}`);
+console.log(`🦊 Elysia is running at http://${app.server?.hostname}:${port}${WEBROOT ?? ""}`);
 
 const clearJobs = () => {
   const jobs = db
