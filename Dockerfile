@@ -43,38 +43,58 @@ RUN bun run build
 # copy production dependencies and source code into final image
 FROM base AS release
 
-# install additional dependencies 
-RUN apt-get update && apt-get install -y \
-  assimp-utils \
-  calibre \
-  dasel \
-  dcraw \
-  dvisvgm \
+# Install dependencies in batches to reduce peak memory usage during build
+# Batch 1: Core media tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
   ffmpeg \
   ghostscript \
   graphicsmagick \
   imagemagick-7.q16 \
-  inkscape \
-  latexmk \
-  libheif-examples \
-  libjxl-tools \
-  libreoffice \
   libva2 \
   libvips-tools \
-  libemail-outlook-message-perl \
-  lmodern \
-  mupdf-tools \
+  && rm -rf /var/lib/apt/lists/*
+
+# Batch 2: Document converters (excluding LibreOffice)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  calibre \
   pandoc \
   poppler-utils \
+  mupdf-tools \
+  libemail-outlook-message-perl \
+  && rm -rf /var/lib/apt/lists/*
+
+# Batch 3: LibreOffice (largest package - installed separately)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  libreoffice \
+  && rm -rf /var/lib/apt/lists/*
+
+# Batch 4: Image tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  dcraw \
+  inkscape \
+  libheif-examples \
+  libjxl-tools \
   potrace \
-  python3-numpy \
   resvg \
+  && rm -rf /var/lib/apt/lists/*
+
+# Batch 5: Other utilities
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  assimp-utils \
+  dasel \
+  dvisvgm \
+  latexmk \
+  python3-numpy \
+  && rm -rf /var/lib/apt/lists/*
+
+# Batch 6: TeX packages (large, install last)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  lmodern \
   texlive \
   texlive-fonts-recommended \
   texlive-latex-extra \
   texlive-latex-recommended \
   texlive-xetex \
-  --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Install VTracer binary

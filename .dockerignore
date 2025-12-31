@@ -8,6 +8,7 @@
 .vscode
 biome.json
 CHANGELOG.md
+CLAUDE.md
 compose.yaml
 coverage*
 data
@@ -19,7 +20,10 @@ images
 LICENSE
 Makefile
 node_modules
+plan.md
 prettier.config.js
 README.md
+railway.toml
 renovate.json
 SECURITY.md
+tests
